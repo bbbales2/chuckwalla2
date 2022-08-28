@@ -1,0 +1,9 @@
+fsspec
+nba-api
+numpy
+pandas
+pendulum
+pyarrow
+pymysql
+s3fs
+sqlalchemy
