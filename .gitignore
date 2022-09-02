@@ -2,5 +2,6 @@
 .idea
 *.pyc
 *__pycache__
+*.egg-info
 chuckwalla-storage.db
 chuckwalla-storage/*

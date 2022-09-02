@@ -1,20 +1,15 @@
 from chuckwalla2 import get_engine, get_filesystem
-from chuckwalla2.etl.nba import create_all
 from chuckwalla2.schemas.nba import Game
-from raw.games import get_path
+from chuckwalla2.etl.nba.games_extract import get_path
+from chuckwalla2.etl.argparse_helper import get_args
 from sqlalchemy.orm import Session
 
-
-import argparse
 import json
-import sys
 
 
-def transform_and_load(date_string : str, production = False):
+def transform_and_load(date_string: str, production: bool = False):
     fs = get_filesystem(production)
     engine = get_engine(production)
-
-    create_all(engine)
 
     path = get_path(date_string)
     with Session(engine) as session:
@@ -65,21 +60,6 @@ def transform_and_load(date_string : str, production = False):
 
 
 if __name__ == "__main__":
-    parser = argparse.ArgumentParser(
-        prog="games_transform_and_load",
-        description="Games transform and load",
-        formatter_class=argparse.ArgumentDefaultsHelpFormatter,
-    )
-
-    parser.set_defaults(func=lambda x: parser.print_usage())
-
-    parser.add_argument("date", type=str, help="Logical date (yyyy-MM-dd)")
-    parser.add_argument("--production", action="store_true", help="Run in production mode")
-
-    if len(sys.argv) < 2:
-        parser.print_help()
-        exit(1)
-
-    args = parser.parse_args()
+    args = get_args(description="Games transform and load")
 
     transform_and_load(args.date, production=args.production)

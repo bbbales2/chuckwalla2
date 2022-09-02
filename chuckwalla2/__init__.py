@@ -3,3 +3,4 @@ from .filesystem import get_filesystem
 
 
 S3_BUCKET = "chuckwalla-storage"
+DATABASE = "chuckwalla-database"

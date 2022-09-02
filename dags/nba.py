@@ -1,14 +1,14 @@
 from airflow import DAG
 from airflow.decorators import task
 from airflow.operators.python import PythonOperator
-
-import chuckwalla2.etl as etl
-import chuckwalla2.schemas as schemas
+from chuckwalla2.etl.nba import \
+    games_extract, games_transform_and_load,\
+    box_scores_extract, box_scores_transform_and_load
 from datetime import datetime, timedelta
 
 
 with DAG(
-    'nba_v1',
+    'nba',
     default_args={
         'depends_on_past': False,
         'email_on_failure': False,
@@ -16,29 +16,43 @@ with DAG(
         'retries': 1,
         'retry_delay': timedelta(minutes=5),
     },
-    description='A simple tutorial DAG',
+    description='NBA DAG. Runs daily to download new data',
     schedule_interval=timedelta(days=1),
-    start_date=datetime(2020, 1, 1),
-    catchup=False,
+    start_date=datetime(2022, 1, 1),
+    catchup=True,
 ) as dag:
     arguments = {
-        "date_string" : "{{ ds }}",
-        "production" : False
+        "date_string": "{{ ds }}",
+        "production": False
     }
 
-    create_all = PythonOperator(
-        etl.nba.create_all,
-        op_kwargs = arguments
+    games_extract = PythonOperator(
+        python_callable=games_extract.extract,
+        op_kwargs=arguments,
+        task_id="games_extract"
     )
 
-    extract = PythonOperator(
-        etl.nba.raw.games.extract,
-        op_kwargs = arguments
+    games_transform_and_load = PythonOperator(
+        python_callable=games_transform_and_load.transform_and_load,
+        op_kwargs=arguments,
+        task_id="games_transform_and_load"
     )
 
-    transform_and_load = PythonOperator(
-        etl.nba.games.transform_and_load,
-        op_kwargs = arguments
+    box_score_extract = PythonOperator(
+        python_callable=box_score_extract.extract,
+        op_kwargs=arguments,
+        task_id="box_score_extract"
     )
 
-    create_all >> extract >> transform_and_load
+    box_score_transform_and_load = PythonOperator(
+        python_callable=box_score_transform_and_load.transform_and_load,
+        op_kwargs=arguments,
+        task_id="box_score_transform_and_load"
+    )
+
+    (
+        games_extract
+        >> games_transform_and_load
+        >> box_score_extract
+        >> box_score_transform_and_load
+    )

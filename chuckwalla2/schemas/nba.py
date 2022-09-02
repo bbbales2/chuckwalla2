@@ -1,5 +1,5 @@
 import sqlalchemy.engine
-from sqlalchemy import Column, Integer, BigInteger, Boolean, String
+from sqlalchemy import Column, Integer, Interval, BigInteger, Boolean, String
 from sqlalchemy.schema import MetaData
 from sqlalchemy.orm import declarative_base
 
@@ -34,3 +34,32 @@ class Game(NbaBase):
     pf = Column(Integer) #"PF" 25
     pts = Column(Integer) #"PTS" = 114
     pm = Column(Integer) #"PLUS_MINUS" = -7
+
+
+class BoxScore(NbaBase):
+    __tablename__ = "nba_box_scores"
+
+    game_id = Column(String, primary_key = True)
+    team_id = Column(BigInteger, primary_key = True)
+    player_id = Column(BigInteger, primary_key = True)
+    team = Column(String)
+    player = Column(String)
+    start_position = Column(String)
+    comment = Column(String)
+    time_played_seconds = Column(Integer)
+    fgm = Column(Integer)
+    fga = Column(Integer)
+    fg3m = Column(Integer)
+    fg3a = Column(Integer)
+    ftm = Column(Integer)
+    fta = Column(Integer)
+    oreb = Column(Integer)
+    dreb = Column(Integer)
+    reb = Column(Integer)
+    ast = Column(Integer)
+    stl = Column(Integer)
+    blk = Column(Integer)
+    to = Column(Integer)
+    pf = Column(Integer)
+    pts = Column(Integer)
+    pm = Column(Integer)
