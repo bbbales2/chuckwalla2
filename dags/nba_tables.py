@@ -26,19 +26,17 @@ with DAG(
         "production": False
     }
 
-    drop_all = PythonOperator(
+    drop_all_operator = PythonOperator(
         python_callable=drop_all.drop_all,
         op_kwargs=arguments,
         task_id="drop_all"
     )
 
-    create_all = PythonOperator(
+    create_all_operator = PythonOperator(
         python_callable=create_all.create_all,
         op_kwargs=arguments,
         task_id="create_all"
     )
 
-    (
-        drop_all
-        >> create_all
-    )
+    drop_all_operator >> create_all_operator
+

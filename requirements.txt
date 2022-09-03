@@ -1,3 +1,5 @@
+airflow
+boto3
 fsspec
 nba-api
 numpy
