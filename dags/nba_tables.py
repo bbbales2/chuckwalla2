@@ -23,7 +23,7 @@ with DAG(
 ) as dag:
     arguments = {
         "date_string": "{{ ds }}",
-        "production": False
+        "production": True
     }
 
     drop_all_operator = PythonOperator(

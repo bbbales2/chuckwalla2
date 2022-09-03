@@ -1,4 +1,4 @@
-airflow
+apache-airflow
 boto3
 fsspec
 nba-api

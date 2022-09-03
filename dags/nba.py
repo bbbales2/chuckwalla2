@@ -24,7 +24,7 @@ with DAG(
 ) as dag:
     arguments = {
         "date_string": "{{ ds }}",
-        "production": False
+        "production": True
     }
 
     games_extract_operator = PythonOperator(
