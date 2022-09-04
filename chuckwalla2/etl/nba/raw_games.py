@@ -1,17 +1,13 @@
 from nba_api.stats.endpoints import leaguegamelog
-from chuckwalla2 import get_filesystem, S3_BUCKET
+from chuckwalla2 import get_folder, get_filesystem
 from chuckwalla2.etl.argparse_helper import get_args
 
 import os
 import pendulum
 
 
-def get_path(date_string : str):
-    return f"{S3_BUCKET}/nba/games/{date_string}.json"
-
-
-def extract(date_string : str, production : bool = False):
-    date = pendulum.parse(date_string)
+def run(partition_date : str, production : bool = True):
+    date = pendulum.parse(partition_date)
 
     if date.month > 6:
         year = date.year
@@ -27,8 +23,8 @@ def extract(date_string : str, production : bool = False):
     results = leaguegamelog.LeagueGameLog(season=season)
 
     fs = get_filesystem(production)
-    path = get_path(date_string)
-    fs.makedirs(os.path.dirname(path), exist_ok=True)
+    folder = get_folder("nba_raw", "games", partition_date)
+    path = os.path.join(folder, "0000.json")
     with fs.open(path, "w") as f:
         f.write(results.league_game_log.get_json())
 
@@ -36,4 +32,4 @@ def extract(date_string : str, production : bool = False):
 if __name__ == "__main__":
     args = get_args(description="Extract games")
 
-    extract(args.date, production=args.production)
+    run(args.date, production=args.production)

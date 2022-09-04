@@ -2,9 +2,9 @@ from airflow import DAG
 from airflow.decorators import task
 from airflow.operators.python import PythonOperator
 from chuckwalla2.etl.nba import \
-    games_extract, games_transform_and_load,\
-    box_scores_extract, box_scores_transform_and_load,\
-    play_by_play_extract, play_by_play_transform_and_load
+    raw_games, clean_games, dw_games,\
+    raw_box_scores, clean_box_scores, dw_box_scores,\
+    raw_play_by_play, clean_play_by_play, dw_play_by_play
 from datetime import datetime, timedelta
 
 
@@ -23,51 +23,80 @@ with DAG(
     catchup=True,
 ) as dag:
     arguments = {
-        "date_string": "{{ ds }}",
+        "partition_date": "{{ ds }}",
         "production": True
     }
 
-    games_extract_operator = PythonOperator(
-        python_callable=games_extract.extract,
+    raw_games_operator = PythonOperator(
+        python_callable=raw_games.run,
         op_kwargs=arguments,
-        task_id="games_extract"
+        task_id="raw_games"
     )
 
-    games_transform_and_load_operator = PythonOperator(
-        python_callable=games_transform_and_load.transform_and_load,
+    clean_games_operator = PythonOperator(
+        python_callable=clean_games.run,
         op_kwargs=arguments,
-        task_id="games_transform_and_load"
+        task_id="clean_games"
     )
 
-    box_scores_extract_operator = PythonOperator(
-        python_callable=box_scores_extract.extract,
+    dw_games_operator = PythonOperator(
+        python_callable=dw_games.run,
         op_kwargs=arguments,
-        task_id="box_score_extract"
+        task_id="dw_games"
     )
 
-    box_scores_transform_and_load_operator = PythonOperator(
-        python_callable=box_scores_transform_and_load.transform_and_load,
+    raw_box_scores_operator = PythonOperator(
+        python_callable=raw_box_scores.run,
         op_kwargs=arguments,
-        task_id="box_score_transform_and_load"
+        task_id="raw_box_scores"
     )
 
-    play_by_play_extract_operator = PythonOperator(
-        python_callable=play_by_play_extract.extract,
+    clean_box_scores_operator = PythonOperator(
+        python_callable=clean_box_scores.run,
         op_kwargs=arguments,
-        task_id="play_by_play_extract"
+        task_id="clean_box_scores"
     )
 
-    play_by_play_transform_and_load_operator = PythonOperator(
-        python_callable=play_by_play_transform_and_load.transform_and_load,
+    dw_box_scores_operator = PythonOperator(
+        python_callable=dw_box_scores.run,
         op_kwargs=arguments,
-        task_id="play_by_play_transform_and_load"
+        task_id="dw_box_scores"
+    )
+    
+    raw_play_by_play_operator = PythonOperator(
+        python_callable=raw_play_by_play.run,
+        op_kwargs=arguments,
+        task_id="raw_play_by_play"
+    )
+
+    clean_play_by_play_operator = PythonOperator(
+        python_callable=clean_play_by_play.run,
+        op_kwargs=arguments,
+        task_id="clean_play_by_play"
+    )
+
+    dw_play_by_play_operator = PythonOperator(
+        python_callable=dw_play_by_play.run,
+        op_kwargs=arguments,
+        task_id="dw_play_by_play"
     )
 
     (
-        games_extract_operator
-        >> games_transform_and_load_operator
-        >> box_scores_extract_operator
-        >> box_scores_transform_and_load_operator
-        >> play_by_play_extract_operator
-        >> play_by_play_transform_and_load_operator
+        raw_games_operator
+        >> clean_games_operator
+        >> dw_games_operator
+    )
+
+    (
+        dw_games_operator
+        >> raw_box_scores_operator
+        >> clean_box_scores_operator
+        >> dw_box_scores_operator
+    )
+
+    (
+        dw_games_operator
+        >> raw_play_by_play_operator
+        >> clean_play_by_play_operator
+        >> dw_play_by_play_operator
     )

@@ -1,11 +1,14 @@
 apache-airflow
 boto3
 fsspec
+jsonlines
 nba-api
 numpy
 pandas
 pendulum
 pyarrow
+pyathena
 pymysql
 s3fs
+sortedcontainers
 sqlalchemy

@@ -1,36 +1,21 @@
 from nba_api.stats.endpoints import playbyplayv2
-from chuckwalla2 import get_engine, get_filesystem, S3_BUCKET
+from chuckwalla2 import get_folder, get_connection_manager, get_filesystem
 from chuckwalla2.etl.argparse_helper import get_args
-from chuckwalla2.schemas.nba import Game
 from chuckwalla2.etl.throttler import Throttler
-from sqlalchemy.orm import Session
-from sqlalchemy import select
 
 import os
-import pendulum
 
 
-def get_folder(date_string: str):
-    return f"{S3_BUCKET}/nba/play_by_play/{date_string}/"
+def run(partition_date: str, production: bool = True):
+    with get_connection_manager() as connection_manager:
+        game_ids_list = connection_manager.execute(f"select game_id from nba_dw.games where date = '{partition_date}'")
 
-
-def extract(date_string: str, production: bool = False):
-    engine = get_engine(production)
-
-    date = pendulum.parse(date_string)
-
-    with Session(engine) as session:
-        games = session.execute(
-            select(Game).where(Game.date == date_string)
-        ).scalars().all()
-
-        game_ids = set([game.game_id for game in games])
+    game_ids = set([row[0] for row in game_ids_list])
 
     throttler = Throttler()
 
     fs = get_filesystem(production)
-    folder = get_folder(date_string)
-    fs.makedirs(os.path.dirname(folder), exist_ok=True)
+    folder = get_folder("nba_raw", "play_by_play", partition_date)
     for game_id in game_ids:
         throttler.sleep_if_necessary()
         print(f"Extracting play-by-plays for game_id = {game_id}")
