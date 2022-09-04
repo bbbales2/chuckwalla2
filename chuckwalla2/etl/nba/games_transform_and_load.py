@@ -8,6 +8,7 @@ import json
 
 
 def transform_and_load(date_string: str, production: bool = False):
+    production = True
     fs = get_filesystem(production)
     engine = get_engine(production)
 
@@ -15,6 +16,10 @@ def transform_and_load(date_string: str, production: bool = False):
     with Session(engine) as session:
         with fs.open(path) as f:
             raw = json.load(f)
+
+        games = {}
+        for game in session.query(Game).all():
+            games[(game.season_id, game.team_id, game.game_id)] = game
 
         headers = raw["headers"]
         for row_as_list in raw["data"]:
@@ -24,10 +29,21 @@ def transform_and_load(date_string: str, production: bool = False):
             team_id = row["TEAM_ID"]
             game_id = row["GAME_ID"]
 
-            existing_game = session.get(Game, {"season_id": season_id, "team_id": team_id, "game_id": game_id})
+            game_key = (season_id, team_id, game_id)
 
-            if existing_game:
-                session.delete(existing_game)
+            if game_key in games:
+            #existing_game = session.get(Game, {"season_id": season_id, "team_id": team_id, "game_id": game_id})
+
+            #if existing_game:
+                session.delete(games[game_key])
+        session.commit()
+
+        for row_as_list in raw["data"]:
+            row = dict(zip(headers, row_as_list))
+
+            season_id = row["SEASON_ID"]
+            team_id = row["TEAM_ID"]
+            game_id = row["GAME_ID"]
 
             game = Game(
                 season_id=season_id,

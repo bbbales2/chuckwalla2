@@ -17,12 +17,12 @@ class Secrets:
 
 
 def get_secrets() -> Secrets:
-    parser = configparser.ConfigParser()
+    config = configparser.ConfigParser()
 
     directories = (os.getcwd(), os.path.expanduser("~"))
     filenames = (os.path.join(directory, CONFIG_NAME) for directory in directories)
 
-    config = parser.read(filenames)
+    config.read(filenames)
 
     if "mysql" not in config:
         raise Exception("A configuration must be provided for mysql")
