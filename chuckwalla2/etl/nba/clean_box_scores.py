@@ -11,6 +11,7 @@ import pyarrow.parquet
 
 
 box_scores_schema = Schema({
+    "PARTITION_DATE" : "string",
     "GAME_ID" : "string",
     "TEAM_ID" : "bigint",
     "PLAYER_ID" : "bigint",
@@ -35,13 +36,13 @@ box_scores_schema = Schema({
     "PF" : "bigint",
     "PTS" : "bigint",
     "PLUS_MINUS" : "bigint",
-})
+}, partitioned_by=["PARTITION_DATE"])
 
 
 def run(partition_date : str, production = True):
     fs = get_filesystem(production)
 
-    folder = get_folder("nba_raw", "box_scores", partition_date)
+    folder = get_folder("nba_raw", "box_scores", partition_name="partition_date", partition_value=partition_date)
 
     box_scores = []
     for raw_path in fs.glob(f"{folder}/*.json"):
@@ -52,7 +53,7 @@ def run(partition_date : str, production = True):
         for row_as_list in raw["data"]:
             row = dict(zip(headers, row_as_list))
 
-            box_score = {name: row[name] for name in box_scores_schema}
+            box_score = {name: row[name] for name in box_scores_schema.fields()}
             box_scores.append(box_score)
 
     if len(box_scores) == 0:
@@ -61,12 +62,13 @@ def run(partition_date : str, production = True):
 
     table = pyarrow.Table.from_pylist(box_scores, schema=box_scores_schema.to_pyarrow_schema())
 
-    folder = get_folder("nba_clean", "box_scores", partition_date)
+    folder = get_folder("nba_clean", "box_scores", partition_name="partition_date", partition_value=partition_date)
     with fs.open(os.path.join(folder, "0000.parquet"), "wb") as f:
         pyarrow.parquet.write_table(table, f)
 
     with get_connection_manager() as connection_manager:
-        connection_manager.update_table("nba_clean", "box_scores", box_scores_schema)
+        connection_manager.ensure_table_exists("nba_clean", "box_scores", box_scores_schema)
+        connection_manager.add_partition("nba_clean", "box_scores", partition_name="partition_date", partition_value=partition_date)
 
 
 if __name__ == "__main__":

@@ -10,6 +10,7 @@ import pyarrow
 import pyarrow.parquet
 
 play_by_play_schema = Schema({
+    "PARTITION_DATE": "string",
     "GAME_ID": "string",
     "EVENTNUM": "bigint",
     "EVENTMSGTYPE" : "bigint",
@@ -36,14 +37,14 @@ play_by_play_schema = Schema({
     "PLAYER3_NAME" : "string",
     "PLAYER3_TEAM_ID" : "bigint",
     "PLAYER3_TEAM_ABBREVIATION" : "string",
-})
+}, partitioned_by=["PARTITION_DATE"])
 
 
 def run(partition_date: str, production: bool = True):
     fs = get_filesystem(production)
 
     play_by_plays = []
-    folder = get_folder("nba_raw", "play_by_play", partition_date)
+    folder = get_folder("nba_raw", "play_by_play", partition_name="partition_date", partition_value=partition_date)
     for raw_path in fs.glob(f"{folder}/*.json"):
         with fs.open(raw_path) as f:
             raw = json.load(f)
@@ -52,7 +53,7 @@ def run(partition_date: str, production: bool = True):
         for row_as_list in raw["data"]:
             row = dict(zip(headers, row_as_list))
 
-            play_by_play = {name: row[name] for name in play_by_play_schema}
+            play_by_play = {name: row[name] for name in play_by_play_schema.fields()}
             play_by_plays.append(play_by_play)
 
     if len(play_by_plays) == 0:
@@ -61,12 +62,13 @@ def run(partition_date: str, production: bool = True):
 
     table = pyarrow.Table.from_pylist(play_by_plays, schema=play_by_play_schema.to_pyarrow_schema())
 
-    folder = get_folder("nba_clean", "play_by_play", partition_date)
+    folder = get_folder("nba_clean", "play_by_play", partition_name="partition_date", partition_value=partition_date)
     with fs.open(os.path.join(folder, "0000.parquet"), "wb") as f:
         pyarrow.parquet.write_table(table, f)
 
     with get_connection_manager() as connection_manager:
-        connection_manager.update_table("nba_clean", "play_by_play", play_by_play_schema)
+        connection_manager.ensure_table_exists("nba_clean", "play_by_play", play_by_play_schema)
+        connection_manager.add_partition("nba_clean", "play_by_play", partition_name="partition_date", partition_value=partition_date)
 
 
 if __name__ == "__main__":

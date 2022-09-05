@@ -32,19 +32,19 @@ games_schema = Schema({
     "PF": "bigint",  # "PF" 25
     "PTS": "bigint",  # "PTS"": 114
     "PLUS_MINUS": "bigint",  # "PLUS_MINUS"": -7
- })
+ }, partitioned_by = ["SEASON_ID"])
 
 
 def run(partition_date: str, production : bool = True):
     fs = get_filesystem(production)
 
-    raw_folder = get_folder("nba_raw", "games", partition_date)
+    raw_folder = get_folder("nba_raw", "games", partition_name="partition_date", partition_value=partition_date)
 
+    games = []
     for raw_path in fs.glob(f"{raw_folder}/*.json"):
         with fs.open(raw_path) as f:
             raw = json.load(f)
 
-        games = []
         headers = list(header.lower() for header in raw["headers"])
         for row_as_list in raw["data"]:
             row = dict(zip(headers, row_as_list))
@@ -56,14 +56,19 @@ def run(partition_date: str, production : bool = True):
         logging.info(f"No games found for partition_date {partition_date}")
         return
 
+    season_id_set = set(game["season_id"] for game in games)
+    assert len(season_id_set) == 1
+    season_id = season_id_set.pop()
+
     table = pyarrow.Table.from_pylist(games, schema=games_schema.to_pyarrow_schema())
 
-    folder = get_folder("nba_clean", "games", partition_date)
+    folder = get_folder("nba_clean", "games", partition_name="season_id", partition_value=season_id)
     with fs.open(os.path.join(folder, "0000.parquet"), "wb") as f:
         pyarrow.parquet.write_table(table, f)
 
     with get_connection_manager() as connection_manager:
-        connection_manager.update_table("nba_clean", "games", games_schema)
+        connection_manager.ensure_table_exists("nba_clean", "games", games_schema)
+        connection_manager.add_partition("nba_clean", "games", partition_name="season_id", partition_value=season_id)
 
 
 if __name__ == "__main__":

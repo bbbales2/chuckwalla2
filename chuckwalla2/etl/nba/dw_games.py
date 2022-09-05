@@ -6,15 +6,8 @@ def run(partition_date: str, production: bool = True):
     with get_connection_manager() as connection_manager:
         sql = f"""
         create or replace view nba_dw.games as
-            with clean_games as (
-                select
-                    *
-                    , row_number() over (partition by season_id, team_id, game_id order by partition_date desc) as row
-                from nba_clean.games
-            )
             select
-                partition_date
-                , season_id
+                season_id
                 , team_id
                 , game_id  -- "0022100002"
                 , team_abbreviation as team  -- "LAL"
@@ -37,7 +30,7 @@ def run(partition_date: str, production: bool = True):
                 , pf  -- "PF" 25
                 , pts  -- "PTS"": 114
                 , plus_minus as pm  -- "PLUS_MINUS"": -7
-            from clean_games where row = 1
+            from nba_clean.games
         """
 
         connection_manager.execute(sql)
