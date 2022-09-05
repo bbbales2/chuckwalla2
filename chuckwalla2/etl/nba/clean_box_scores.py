@@ -4,6 +4,7 @@ from chuckwalla2.etl.argparse_helper import get_args
 from chuckwalla2.etl.nba.raw_box_scores import get_folder
 
 import json
+import logging
 import os
 import pyarrow
 import pyarrow.parquet
@@ -53,6 +54,10 @@ def run(partition_date : str, production = True):
 
             box_score = {name: row[name] for name in box_scores_schema}
             box_scores.append(box_score)
+
+    if len(box_scores) == 0:
+        logging.info(f"No box scores found for partition_date {partition_date}")
+        return
 
     table = pyarrow.Table.from_pylist(box_scores, schema=box_scores_schema.to_pyarrow_schema())
 

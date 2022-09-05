@@ -3,6 +3,7 @@ from chuckwalla2.schema import Schema
 from chuckwalla2.etl.argparse_helper import get_args
 
 import json
+import logging
 import os
 import pyarrow
 import pyarrow.parquet
@@ -50,6 +51,10 @@ def run(partition_date: str, production : bool = True):
 
             game = {name: row[name] for name in games_schema}
             games.append(game)
+
+    if len(games) == 0:
+        logging.info(f"No games found for partition_date {partition_date}")
+        return
 
     table = pyarrow.Table.from_pylist(games, schema=games_schema.to_pyarrow_schema())
 

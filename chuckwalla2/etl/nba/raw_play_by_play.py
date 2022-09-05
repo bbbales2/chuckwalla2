@@ -4,6 +4,7 @@ from chuckwalla2.etl.argparse_helper import get_args
 from chuckwalla2.etl.throttler import Throttler
 
 import os
+import logging
 
 
 def run(partition_date: str, production: bool = True):
@@ -12,13 +13,17 @@ def run(partition_date: str, production: bool = True):
 
     game_ids = set([row[0] for row in game_ids_list])
 
+    if len(game_ids) == 0:
+        logging.info(f"No games found for date = {partition_date}")
+        return
+
     throttler = Throttler()
 
     fs = get_filesystem(production)
     folder = get_folder("nba_raw", "play_by_play", partition_date)
     for game_id in game_ids:
         throttler.sleep_if_necessary()
-        print(f"Extracting play-by-plays for game_id = {game_id}")
+        logging.info(f"Extracting play-by-plays for game_id = {game_id}")
         results = playbyplayv2.PlayByPlayV2(game_id=game_id)
 
         try:

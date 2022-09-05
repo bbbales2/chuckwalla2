@@ -4,6 +4,7 @@ from chuckwalla2.etl.argparse_helper import get_args
 from chuckwalla2.etl.nba.raw_play_by_play import get_folder
 
 import json
+import logging
 import os
 import pyarrow
 import pyarrow.parquet
@@ -53,6 +54,10 @@ def run(partition_date: str, production: bool = True):
 
             play_by_play = {name: row[name] for name in play_by_play_schema}
             play_by_plays.append(play_by_play)
+
+    if len(play_by_plays) == 0:
+        logging.info(f"No play-by-plays found for partition_date {partition_date}")
+        return
 
     table = pyarrow.Table.from_pylist(play_by_plays, schema=play_by_play_schema.to_pyarrow_schema())
 
