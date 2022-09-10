@@ -1,6 +1,6 @@
 from chuckwalla2 import get_connection_manager, get_filesystem
 from chuckwalla2.schema import Schema
-from chuckwalla2.etl.argparse_helper import get_args
+from chuckwalla2.argparse_helper import get_args
 from chuckwalla2.etl.nba.raw_play_by_play import get_folder
 
 import json

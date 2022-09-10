@@ -1,6 +1,6 @@
 from nba_api.stats.endpoints import boxscoretraditionalv2
 from chuckwalla2 import get_folder, get_connection_manager, get_filesystem
-from chuckwalla2.etl.argparse_helper import get_args
+from chuckwalla2.argparse_helper import get_args
 from chuckwalla2.etl.throttler import Throttler
 
 import os
@@ -23,7 +23,14 @@ def run(partition_date: str, production: bool = True):
     folder = get_folder("nba_raw", "box_scores", partition_name="partition_date", partition_value=partition_date)
     for game_id in game_ids:
         throttler.sleep_if_necessary()
+
         logging.info(f"Extracting games for game_id = {game_id}")
+
+        results_path = os.path.join(folder, f"{str(game_id)}.json")
+        if fs.exists(results_path):
+            logging.info(f"Output already exists for game_id = {game_id} in {results_path}")
+            continue
+
         results = boxscoretraditionalv2.BoxScoreTraditionalV2(game_id=game_id)
 
         try:
@@ -31,8 +38,7 @@ def run(partition_date: str, production: bool = True):
         except Exception:
             raise Exception(f"game_id must be an integer, found {game_id} instead")
 
-        path = os.path.join(folder, f"{str(game_id)}.json")
-        with fs.open(path, "w") as f:
+        with fs.open(results_path, "w") as f:
             f.write(results.player_stats.get_json())
 
 

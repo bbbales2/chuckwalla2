@@ -1,6 +1,6 @@
 from chuckwalla2 import get_connection_manager, get_filesystem, get_folder
 from chuckwalla2.schema import Schema
-from chuckwalla2.etl.argparse_helper import get_args
+from chuckwalla2.argparse_helper import get_args
 
 import json
 import logging
@@ -36,6 +36,7 @@ games_schema = Schema({
 
 
 def run(partition_date: str, production : bool = True):
+    partition_date = "2022-09-01"
     fs = get_filesystem(production)
 
     raw_folder = get_folder("nba_raw", "games", partition_name="partition_date", partition_value=partition_date)

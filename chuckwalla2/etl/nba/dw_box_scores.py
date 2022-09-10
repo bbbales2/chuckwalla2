@@ -1,5 +1,5 @@
 from chuckwalla2 import get_connection_manager
-from chuckwalla2.etl.argparse_helper import get_args
+from chuckwalla2.argparse_helper import get_args
 
 
 def run(partition_date: str, production: bool = True):
