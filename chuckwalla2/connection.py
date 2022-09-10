@@ -6,8 +6,6 @@ from typing import List, Tuple
 import logging
 import pyathena
 import pyathena.connection
-import pyarrow
-import re
 
 S3_BUCKET = "chuckwalla2-storage"
 AWS_REGION = "us-east-1"

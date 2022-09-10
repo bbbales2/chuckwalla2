@@ -23,7 +23,7 @@ def run(partition_date : str, production : bool = True):
     results = leaguegamelog.LeagueGameLog(season=season)
 
     fs = get_filesystem(production)
-    folder = get_folder("nba_raw", "games", partition_date)
+    folder = get_folder("nba_raw", "games", partition_name="partition_date", partition_value=partition_date)
     path = os.path.join(folder, "0000.json")
     with fs.open(path, "w") as f:
         f.write(results.league_game_log.get_json())

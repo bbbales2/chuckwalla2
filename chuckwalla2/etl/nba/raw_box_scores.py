@@ -20,7 +20,7 @@ def run(partition_date: str, production: bool = True):
     throttler = Throttler()
 
     fs = get_filesystem(production)
-    folder = get_folder("nba_raw", "box_scores", partition_date)
+    folder = get_folder("nba_raw", "box_scores", partition_name="partition_date", partition_value=partition_date)
     for game_id in game_ids:
         throttler.sleep_if_necessary()
         logging.info(f"Extracting games for game_id = {game_id}")

@@ -20,7 +20,7 @@ def run(partition_date: str, production: bool = True):
     throttler = Throttler()
 
     fs = get_filesystem(production)
-    folder = get_folder("nba_raw", "play_by_play", partition_date)
+    folder = get_folder("nba_raw", "play_by_play", partition_name="partition_date", partition_value=partition_date)
     for game_id in game_ids:
         throttler.sleep_if_necessary()
         logging.info(f"Extracting play-by-plays for game_id = {game_id}")
@@ -39,4 +39,4 @@ def run(partition_date: str, production: bool = True):
 if __name__ == "__main__":
     args = get_args(description="Extract for play by play")
 
-    extract(args.date, production=args.production)
+    run(args.date, production=args.production)

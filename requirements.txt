@@ -11,4 +11,3 @@ pyathena
 pymysql
 s3fs
 sortedcontainers
-sqlalchemy
