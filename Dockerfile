@@ -1,15 +1,17 @@
-FROM public.ecr.aws/lambda/python:3.9
+FROM amazonlinux:2022
 
-COPY requirements.txt ${LAMBDA_TASK_ROOT}
+RUN yum install -y python3-pip python3-devel
 
+# Install requirements early to cache them
+COPY requirements.txt .
 RUN pip3 install -r requirements.txt
 
 # Copy repository
-COPY chuckwalla2 ${LAMBDA_TASK_ROOT}/chuckwalla2
-COPY setup.py ${LAMBDA_TASK_ROOT}
-COPY README.md ${LAMBDA_TASK_ROOT}
+COPY chuckwalla2 ./chuckwalla2
+COPY setup.py .
+COPY README.md .
 
 # Install package in place
 RUN  pip3 install .
 
-CMD [ "chuckwalla2.handler" ]
+ENTRYPOINT ["python3", "chuckwalla2/main.py"]

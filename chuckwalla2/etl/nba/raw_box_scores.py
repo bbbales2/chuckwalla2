@@ -2,6 +2,7 @@ from nba_api.stats.endpoints import boxscoretraditionalv2
 from chuckwalla2 import get_folder, get_connection_manager, get_filesystem
 from chuckwalla2.argparse_helper import get_args
 from chuckwalla2.etl.throttler import Throttler
+from chuckwalla2.headers import HEADERS
 
 import os
 import logging
@@ -31,7 +32,7 @@ def run(partition_date: str, production: bool = True):
             logging.info(f"Output already exists for game_id = {game_id} in {results_path}")
             continue
 
-        results = boxscoretraditionalv2.BoxScoreTraditionalV2(game_id=game_id)
+        results = boxscoretraditionalv2.BoxScoreTraditionalV2(game_id=game_id, headers=HEADERS)
 
         try:
             int(game_id)

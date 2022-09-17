@@ -2,9 +2,9 @@ from chuckwalla2.etl.nba import \
     raw_games, clean_games, dw_games,\
     raw_box_scores, clean_box_scores, dw_box_scores,\
     raw_play_by_play, clean_play_by_play, dw_play_by_play
-from chuckwalla2.argparse_helper import get_args
 from textwrap import dedent
 
+import argparse
 import logging
 import pendulum
 
@@ -12,18 +12,14 @@ logger = logging.getLogger()
 logger.setLevel(logging.INFO)
 
 
-def handler(event, context):
-    if "time" not in event:
-        raise KeyError(f"A runtime (string, UTC) must be passed to the lambda, found event {event}")
-
-    time_argument = event["time"]
-    date = pendulum.parse(time_argument)
+def main(time_string: str):
+    date = pendulum.parse(time_string)
     partition_date = date.subtract(days=1).to_date_string()
     production = True
 
     msg = dedent(f"""
         Running with:
-         -- time : {time_argument}
+         -- time : {time_string}
          -- partition_date : {partition_date}
          -- production : {production}
     """)
@@ -59,4 +55,20 @@ def handler(event, context):
 
 
 if __name__ == "__main__":
-    handler({"time": "2022-01-02"}, {})
+    parser = argparse.ArgumentParser(
+        description="Entrypoint to run ETLs",
+        formatter_class=argparse.ArgumentDefaultsHelpFormatter,
+    )
+
+    parser.set_defaults(func=lambda x: parser.print_usage())
+
+    parser.add_argument(
+        "--time",
+        type=str,
+        default="2022-01-02",
+        help="Run time in a form pendulum.parse can understand. Will execute ETLs for previous day"
+    )
+
+    args = parser.parse_args()
+
+    main(args.time)

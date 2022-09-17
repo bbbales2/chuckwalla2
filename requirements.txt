@@ -6,4 +6,5 @@ pendulum
 pyarrow
 pyathena
 s3fs
+setuptools
 sortedcontainers
