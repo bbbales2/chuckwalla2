@@ -2,7 +2,7 @@ from chuckwalla2 import get_connection_manager
 from chuckwalla2.argparse_helper import get_args
 
 
-def run(partition_date: str, production: bool = True):
+def run(partition_date: str):
     with get_connection_manager() as connection_manager:
         sql = f"""
         create or replace view nba_dw.play_by_play as
@@ -50,4 +50,4 @@ def run(partition_date: str, production: bool = True):
 if __name__ == "__main__":
     args = get_args(description="Play by play data warehouse view")
 
-    run(args.date, production=args.production)
+    run(args.date)

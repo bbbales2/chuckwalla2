@@ -40,8 +40,8 @@ play_by_play_schema = Schema({
 }, partitioned_by=["PARTITION_DATE"])
 
 
-def run(partition_date: str, production: bool = True):
-    fs = get_filesystem(production)
+def run(partition_date: str):
+    fs = get_filesystem()
 
     play_by_plays = []
     folder = get_folder("nba_raw", "play_by_play", partition_name="partition_date", partition_value=partition_date)
@@ -74,4 +74,4 @@ def run(partition_date: str, production: bool = True):
 if __name__ == "__main__":
     args = get_args("Play-by-play transform and load")
 
-    run(args.date, production=args.production)
+    run(args.date)

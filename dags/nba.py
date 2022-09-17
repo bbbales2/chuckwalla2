@@ -24,7 +24,6 @@ with DAG(
 ) as dag:
     arguments = {
         "partition_date": "{{ ds }}",
-        "production": True
     }
 
     raw_games_operator = PythonOperator(

@@ -7,7 +7,7 @@ import os
 import pendulum
 
 
-def run(partition_date : str, production : bool = True):
+def run(partition_date : str):
     partition_date = "2022-09-16"
     date = pendulum.parse(partition_date)
 
@@ -22,7 +22,7 @@ def run(partition_date : str, production : bool = True):
 
     logging.info(f"Extracting games for season = {season}")
 
-    fs = get_filesystem(production)
+    fs = get_filesystem()
     folder = get_folder("nba_raw", "games", partition_name="partition_date", partition_value=partition_date)
     results_path = os.path.join(folder, "0000.json")
     logging.info(f"Checking if output {results_path} already exists")
@@ -39,4 +39,4 @@ def run(partition_date : str, production : bool = True):
 if __name__ == "__main__":
     args = get_args(description="Extract games")
 
-    run(args.date, production=args.production)
+    run(args.date)

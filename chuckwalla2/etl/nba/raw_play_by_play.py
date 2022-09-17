@@ -7,7 +7,7 @@ import os
 import logging
 
 
-def run(partition_date: str, production: bool = True):
+def run(partition_date: str):
     with get_connection_manager() as connection_manager:
         game_ids_list = connection_manager.execute(f"select game_id from nba_dw.games where date = '{partition_date}'")
 
@@ -19,7 +19,7 @@ def run(partition_date: str, production: bool = True):
 
     throttler = Throttler()
 
-    fs = get_filesystem(production)
+    fs = get_filesystem()
     folder = get_folder("nba_raw", "play_by_play", partition_name="partition_date", partition_value=partition_date)
     for game_id in game_ids:
         throttler.sleep_if_necessary()
@@ -43,4 +43,4 @@ def run(partition_date: str, production: bool = True):
 if __name__ == "__main__":
     args = get_args(description="Extract for play by play")
 
-    run(args.date, production=args.production)
+    run(args.date)

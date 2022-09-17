@@ -39,8 +39,8 @@ box_scores_schema = Schema({
 }, partitioned_by=["PARTITION_DATE"])
 
 
-def run(partition_date : str, production = True):
-    fs = get_filesystem(production)
+def run(partition_date : str):
+    fs = get_filesystem()
 
     folder = get_folder("nba_raw", "box_scores", partition_name="partition_date", partition_value=partition_date)
 
@@ -74,4 +74,4 @@ def run(partition_date : str, production = True):
 if __name__ == "__main__":
     args = get_args("Box score transform and load")
 
-    run(args.date, production=args.production)
+    run(args.date)

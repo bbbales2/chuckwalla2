@@ -15,43 +15,41 @@ logger.setLevel(logging.INFO)
 def main(time_string: str):
     date = pendulum.parse(time_string)
     partition_date = date.subtract(days=1).to_date_string()
-    production = True
 
     msg = dedent(f"""
         Running with:
          -- time : {time_string}
          -- partition_date : {partition_date}
-         -- production : {production}
     """)
 
     logging.info(msg)
 
     logging.info("Running raw_games")
-    raw_games.run(partition_date=partition_date, production=production)
+    raw_games.run(partition_date=partition_date)
 
     logging.info("Running raw_box_scores")
-    raw_box_scores.run(partition_date=partition_date, production=production)
+    raw_box_scores.run(partition_date=partition_date)
 
     logging.info("Running raw_play_by_play")
-    raw_play_by_play.run(partition_date=partition_date, production=production)
+    raw_play_by_play.run(partition_date=partition_date)
 
     logging.info("Running clean_games")
-    clean_games.run(partition_date=partition_date, production=production)
+    clean_games.run(partition_date=partition_date)
 
     logging.info("Running clean_box_scores")
-    clean_box_scores.run(partition_date=partition_date, production=production)
+    clean_box_scores.run(partition_date=partition_date)
 
     logging.info("Running clean_play_by_play")
-    clean_play_by_play.run(partition_date=partition_date, production=production)
+    clean_play_by_play.run(partition_date=partition_date)
 
     logging.info("Running dw_games")
-    dw_games.run(partition_date=partition_date, production=production)
+    dw_games.run(partition_date=partition_date)
 
     logging.info("Running dw_box_scores")
-    dw_box_scores.run(partition_date=partition_date, production=production)
+    dw_box_scores.run(partition_date=partition_date)
 
     logging.info("Running dw_play_by_play")
-    dw_play_by_play.run(partition_date=partition_date, production=production)
+    dw_play_by_play.run(partition_date=partition_date)
 
 
 if __name__ == "__main__":
