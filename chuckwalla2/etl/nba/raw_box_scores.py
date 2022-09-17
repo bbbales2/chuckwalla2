@@ -31,7 +31,7 @@ def run(partition_date: str):
             logging.info(f"Output already exists for game_id = {game_id} in {results_path}")
             continue
 
-        results = boxscoretraditionalv2.BoxScoreTraditionalV2(game_id=game_id, headers=HEADERS)
+        results = boxscoretraditionalv2.BoxScoreTraditionalV2(game_id=game_id)
 
         try:
             int(game_id)

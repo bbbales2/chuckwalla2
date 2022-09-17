@@ -30,7 +30,7 @@ def run(partition_date : str):
         logging.info(f"Output already exists in {results_path}")
         return
 
-    results = leaguegamelog.LeagueGameLog(season=season, headers=HEADERS)
+    results = leaguegamelog.LeagueGameLog(season=season)
 
     with fs.open(results_path, "w") as f:
         f.write(results.league_game_log.get_json())
