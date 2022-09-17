@@ -28,5 +28,5 @@ docker run \
   -e AWS_SECRET_ACCESS_KEY=$(aws configure get default.aws_secret_access_key) \
   -e AWS_DEFAULT_REGION=$(aws configure get default.region) \
   chuckwalla2 \
-  --time 2022-01-02
+  --time `date -u +%F`
 ```

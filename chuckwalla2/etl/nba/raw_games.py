@@ -1,7 +1,6 @@
 from nba_api.stats.endpoints import leaguegamelog
 from chuckwalla2 import get_folder, get_filesystem
 from chuckwalla2.argparse_helper import get_args
-from chuckwalla2.headers import HEADERS
 
 import logging
 import os

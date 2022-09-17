@@ -1,8 +1,7 @@
 from nba_api.stats.endpoints import playbyplayv2
 from chuckwalla2 import get_folder, get_connection_manager, get_filesystem
 from chuckwalla2.argparse_helper import get_args
-from chuckwalla2.etl.throttler import Throttler
-from chuckwalla2.headers import HEADERS
+from chuckwalla2.throttler import Throttler
 
 import os
 import logging
