@@ -8,7 +8,6 @@ import pendulum
 
 
 def run(partition_date : str):
-    partition_date = "2022-09-16"
     date = pendulum.parse(partition_date)
 
     if date.month > 6:
