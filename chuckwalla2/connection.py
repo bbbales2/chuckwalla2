@@ -103,7 +103,7 @@ class ConnectionManager:
 
 @contextmanager
 def get_connection() -> pyathena.connection.Connection:
-    connection = pyathena.connect(region = AWS_REGION, work_group = ATHENA_WORK_GROUP)
+    connection = pyathena.connect(region=AWS_REGION, work_group=ATHENA_WORK_GROUP)
     try:
         yield connection
     finally:
