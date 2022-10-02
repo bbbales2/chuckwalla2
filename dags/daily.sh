@@ -5,10 +5,10 @@ mkdir -p logs
 log_file="logs/$run_date"
 echo "Logging daily dag to $log_file"
 git pull >& $log_file
-docker build -t chuckwalla2 . >& $log_file
+docker build -t chuckwalla2 . >> $log_file 2>&1
 docker run \
   -e AWS_ACCESS_KEY_ID="$(aws configure get default.aws_access_key_id)" \
   -e AWS_SECRET_ACCESS_KEY="$(aws configure get default.aws_secret_access_key)" \
   -e AWS_DEFAULT_REGION="$(aws configure get default.region)" \
   chuckwalla2 \
-  --time "$run_date" >& $log_file
+  --time "$run_date" >> $log_file 2>&1
