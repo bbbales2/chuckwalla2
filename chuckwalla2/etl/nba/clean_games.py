@@ -36,7 +36,6 @@ games_schema = Schema({
 
 
 def run(partition_date: str):
-    partition_date = "2022-09-01"
     fs = get_filesystem()
 
     raw_folder = get_folder("nba_raw", "games", partition_name="partition_date", partition_value=partition_date)
